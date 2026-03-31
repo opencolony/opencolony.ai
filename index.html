@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>开发中 | Under Construction</title>
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --fg: #e8e8e8;
+            --accent: #ff2d55;
+            --accent-secondary: #00f5d4;
+            --muted: #4a4a5a;
+            --glow-accent: 0 0 60px rgba(255, 45, 85, 0.5);
+            --glow-secondary: 0 0 60px rgba(0, 245, 212, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255, 45, 85, 0.15), transparent),
+                radial-gradient(ellipse 60% 40% at 80% 100%, rgba(0, 245, 212, 0.1), transparent);
+            pointer-events: none;
+        }
+
+        .noise {
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+        }
+
+        .grid-lines {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 80px 80px;
+            pointer-events: none;
+        }
+
+        .container {
+            text-align: center;
+            z-index: 10;
+            padding: 2rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--accent);
+            border-radius: 100px;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--accent);
+            margin-bottom: 3rem;
+            opacity: 0;
+            animation: fadeIn 0.8s ease forwards;
+            animation-delay: 0.2s;
+        }
+
+        .badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .title {
+            font-size: clamp(3rem, 12vw, 8rem);
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -0.03em;
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            animation: slideUp 1s ease forwards;
+            animation-delay: 0.4s;
+        }
+
+        .title .highlight {
+            position: relative;
+            display: inline-block;
+            color: var(--accent);
+            text-shadow: var(--glow-accent);
+        }
+
+        .title .construct {
+            display: block;
+            font-size: 0.35em;
+            font-weight: 400;
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-top: 0.5rem;
+            text-shadow: none;
+        }
+
+        .subtitle {
+            font-family: "Courier New", Courier, monospace;
+            font-size: clamp(0.875rem, 2vw, 1rem);
+            color: var(--muted);
+            max-width: 400px;
+            margin: 0 auto 3rem;
+            line-height: 1.8;
+            opacity: 0;
+            animation: slideUp 1s ease forwards;
+            animation-delay: 0.6s;
+        }
+
+        .progress-container {
+            width: min(300px, 80vw);
+            margin: 0 auto;
+            opacity: 0;
+            animation: slideUp 1s ease forwards;
+            animation-delay: 0.8s;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .progress-bar {
+            height: 2px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 1px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
+            border-radius: 1px;
+            position: relative;
+            animation: progressLoad 3s ease forwards;
+            animation-delay: 1s;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 6px;
+            background: var(--accent-secondary);
+            border-radius: 50%;
+            box-shadow: var(--glow-secondary);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-top: 4rem;
+            opacity: 0;
+            animation: fadeIn 1s ease forwards;
+            animation-delay: 1.2s;
+        }
+
+        .social-links a {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--muted);
+            border-radius: 50%;
+            color: var(--muted);
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .social-links a:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: var(--glow-accent);
+        }
+
+        .social-links svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        .floating-shape {
+            position: fixed;
+            pointer-events: none;
+            opacity: 0;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .shape-1 {
+            top: 15%;
+            left: 10%;
+            width: 120px;
+            height: 120px;
+            border: 1px solid rgba(255, 45, 85, 0.2);
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            bottom: 20%;
+            right: 15%;
+            width: 80px;
+            height: 80px;
+            border: 1px solid rgba(0, 245, 212, 0.2);
+            transform: rotate(45deg);
+            animation-delay: -5s;
+        }
+
+        .shape-3 {
+            top: 60%;
+            left: 5%;
+            width: 60px;
+            height: 60px;
+            border: 1px solid rgba(255, 45, 85, 0.15);
+            border-radius: 50%;
+            animation-delay: -10s;
+        }
+
+        .corner-bracket {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            pointer-events: none;
+            opacity: 0;
+            animation: fadeIn 1s ease forwards;
+            animation-delay: 1.5s;
+        }
+
+        .corner-bracket.top-left {
+            top: 2rem;
+            left: 2rem;
+            border-top: 1px solid var(--muted);
+            border-left: 1px solid var(--muted);
+        }
+
+        .corner-bracket.top-right {
+            top: 2rem;
+            right: 2rem;
+            border-top: 1px solid var(--muted);
+            border-right: 1px solid var(--muted);
+        }
+
+        .corner-bracket.bottom-left {
+            bottom: 2rem;
+            left: 2rem;
+            border-bottom: 1px solid var(--muted);
+            border-left: 1px solid var(--muted);
+        }
+
+        .corner-bracket.bottom-right {
+            bottom: 2rem;
+            right: 2rem;
+            border-bottom: 1px solid var(--muted);
+            border-right: 1px solid var(--muted);
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        @keyframes progressLoad {
+            to { width: 73%; }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            25% {
+                transform: translateY(-20px) rotate(5deg);
+            }
+            50% {
+                transform: translateY(0) rotate(0deg);
+            }
+            75% {
+                transform: translateY(20px) rotate(-5deg);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .corner-bracket {
+                width: 30px;
+                height: 30px;
+            }
+            .corner-bracket.top-left,
+            .corner-bracket.top-right,
+            .corner-bracket.bottom-left,
+            .corner-bracket.bottom-right {
+                top: 1rem;
+                bottom: 1rem;
+            }
+            .corner-bracket.top-left,
+            .corner-bracket.bottom-left {
+                left: 1rem;
+            }
+            .corner-bracket.top-right,
+            .corner-bracket.bottom-right {
+                right: 1rem;
+            }
+            .floating-shape {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="noise"></div>
+    <div class="grid-lines"></div>
+
+    <div class="floating-shape shape-1"></div>
+    <div class="floating-shape shape-2"></div>
+    <div class="floating-shape shape-3"></div>
+
+    <div class="corner-bracket top-left"></div>
+    <div class="corner-bracket top-right"></div>
+    <div class="corner-bracket bottom-left"></div>
+    <div class="corner-bracket bottom-right"></div>
+
+    <div class="container">
+        <div class="badge">Coming Soon</div>
+
+        <h1 class="title">
+            <span class="highlight">Building</span>
+            <span class="construct">Under Construction</span>
+        </h1>
+
+        <p class="subtitle">
+            我们正在打造一些特别的东西<br>
+            敬请期待，探索即将开始
+        </p>
+
+        <div class="progress-container">
+            <div class="progress-label">
+                <span>进度 Progress</span>
+                <span>33%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+        </div>
+
+        <div class="social-links">
+            <a href="https://github.com/opencolony" aria-label="GitHub" target="_blank">
+                <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+            </a>
+            <a href="https://x.com/Xiaoliang1993" aria-label="Twitter" target="_blank">
+                <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <a href="mailto:hi@yuexiaoliang.com" aria-label="Email">
+                <svg viewBox="0 0 24 24"><path d="M12 12.713l11.985-8.713c.457-.33 1.055-.5 1.64-.5H.375c.585 0 1.183.17 1.64.5L12 12.713zm0 0l-11.985 8.713c-.457.33-1.055.5-1.64.5v-17.5c.585 0 1.183-.17 1.64-.5L12 12.713z"/></svg>
+            </a>
+        </div>
+    </div>
+</body>
+</html>
